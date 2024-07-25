@@ -22,9 +22,15 @@ app.get('/test', (req, res) => {
     res.send('Test OK')
 })
 
-app.get('/listings', (req, res) => {
-    con.query("SELECT * FROM projectrec.posts", (err, result, fields) => {
-        res.send(result)
+app.post('/listings', (req, res) => {
+    let recs = []
+    con.query("SELECT * FROM projectrec.posts ORDER BY ID LIMIT ? OFFSET ? ", [req.body.limit, req.body.offset], (err, result) => {
+        if (err) throw err
+        recs = result
+    })
+    con.query("SELECT COUNT(*) as listingCount FROM projectrec.posts", (err, result, fields) => {
+        if(err) throw err
+        res.send({count: result[0].listingCount, listings: recs})
     })
 })
 
