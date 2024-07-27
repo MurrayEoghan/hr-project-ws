@@ -35,10 +35,20 @@ app.post('/listings', (req, res) => {
 })
 
 app.post('/user', (req, res) => {
-    con.query("SELECT * FROM projectrec.users where uuid=?", [req.body.userId], (err, result) => {
-        if(err) throw err
-        res.send(result).status(200)
-    })
+    if(req.body.username === undefined && req.body.password === undefined) {
+        con.query("SELECT * FROM projectrec.users where uuid=?", [req.body.userId], (err, result) => {
+            if(err) throw err
+            res.send(result).status(200)
+        })
+    } else {
+        con.query("SELECT * FROM projectrec.users where username = ? AND password = ?", [req.body.username, req.body.password], (err, result) => {
+            if (err || result.length === 0) {
+                res.send('User Not Found').status(404)
+            } else {
+                res.send(result).status(200)
+            }
+        })
+    }
 })
 
 app.listen(port, () => {
